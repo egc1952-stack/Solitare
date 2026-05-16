@@ -1,6 +1,8 @@
 #include "ThreadPool.h"
 #include <iostream>
 #include <vector>
+#include "sqlite3.h"
+
 
 int main() {
     ThreadPool pool; // uses hardware_concurrency()
