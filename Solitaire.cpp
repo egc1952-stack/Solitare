@@ -1,4 +1,4 @@
-#include "Solitare.h"
+#include "Solitaire.h"
 #include <iostream>
 #include <vector>
 #include "sqlite3.h"
