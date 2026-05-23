@@ -4,7 +4,7 @@
     {
       "label": "Build solitaire.exe (MSVC)",
       "type": "shell",
-      "command": "\"C:/Program Files/Microsoft Visual Studio/2022a/Community/VC/Auxiliary/Build/vcvars64.bat\" && cl /std:c++17 /EHsc /Fe:solitaire.exe *.cpp sqlite3.c",
+      "command": "\"C:/Program Files/Microsoft Visual Studio/2022a/Community/VC/Auxiliary/Build/vcvars64.bat\" && cl /std:c++17 /EHsc /Fe:solitaire.exe Solitaire.cpp sqlite3.c",
       "options": {
         "cwd": "${workspaceFolder}",
         "shell": {
