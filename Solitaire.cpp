@@ -2,10 +2,11 @@
 #include <iostream>
 #include <vector>
 #include "sqlite3.h"
+#include "functions.h"
 
 
 
-int initialize() {
+int junk   () {
         sqlite3* db = nullptr;
 
     // Initialize game state, load resources, etc.
@@ -37,7 +38,7 @@ int initialize() {
 }
 
 int main() {
-    initialize();
+    int result = initialize();
     // load game state from database
     // launch helper
     // process parent
