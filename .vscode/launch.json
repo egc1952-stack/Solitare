@@ -8,7 +8,8 @@
       "program": "${workspaceFolder}/solitaire.exe",
       "cwd": "${workspaceFolder}",
       "console": "integratedTerminal",
-      "stopAtEntry": false
+      "stopAtEntry": false,
+      "preLaunchTask": "Build solitaire.exe (MSVC)"
     }
   ]
 }

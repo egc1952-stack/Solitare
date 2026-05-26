@@ -3,5 +3,14 @@
     "editor.suggestOnTriggerCharacters": false,
     "editor.parameterHints.enabled": false,
     "editor.hover.enabled": "on",
-    "editor.inlineSuggest.enabled": false
+    "editor.inlineSuggest.enabled": false,
+    "editor.insertSpaces": false,
+    "editor.detectIndentation": false,
+    "editor.tabSize": 4,
+	"C_Cpp.default.compilerPath": "C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/<version>/bin/Hostx64/x64/cl.exe",
 }
+
+
+
+
+
