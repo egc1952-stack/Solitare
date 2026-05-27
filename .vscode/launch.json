@@ -10,6 +10,7 @@
       "console": "integratedTerminal",
       "stopAtEntry": false,
       "preLaunchTask": "Build solitaire.exe (MSVC)"
+	  
     }
   ]
 }

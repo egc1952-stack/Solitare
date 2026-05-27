@@ -3,6 +3,7 @@
 #include <vector>
 #include "sqlite3.h"
 #include "functions.h"
+#include <synchapi.h>
 
 
 
@@ -38,6 +39,7 @@ int junk   () {
 }
 
 int main() {
+	Sleep(2000);
     int result = initialize();
     // load game state from database
     // launch helper

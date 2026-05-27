@@ -1,5 +1,9 @@
 {
-    "editor.quickSuggestions": false,
+    "editor.quickSuggestions": {
+        "comments": "off",
+        "strings": "off",
+        "other": "off"
+    },
     "editor.suggestOnTriggerCharacters": false,
     "editor.parameterHints.enabled": false,
     "editor.hover.enabled": "on",
@@ -7,10 +11,8 @@
     "editor.insertSpaces": false,
     "editor.detectIndentation": false,
     "editor.tabSize": 4,
-	"C_Cpp.default.compilerPath": "C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/<version>/bin/Hostx64/x64/cl.exe",
+    "C_Cpp.default.compilerPath": "C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.44.35207/bin/Hostx64/x64/cl.exe",
+    "terminal.integrated.defaultProfile.windows": "Command Prompt",
+	"C_Cpp.default.windowsSdkVersion": "10.0.22621.0"
+
 }
-
-
-
-
-

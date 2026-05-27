@@ -4,15 +4,9 @@
         {
             "label": "Build solitaire.exe (MSVC)",
             "type": "shell",
-            "command": "\"C:/Program Files/Microsoft Visual Studio/2022a/Community/VC/Auxiliary/Build/vcvars64.bat\" && cl /std:c++17 /EHsc /Fe:solitaire.exe Solitaire.cpp initialize.cpp database.cpp sqlite3.c",
-            "options": {
-                "cwd": "${workspaceFolder}",
-                "shell": {
-                    "executable": "cmd.exe",
-                    "args": [
-                        "/c"
-                    ]
-                }
+			"command": "cmd.exe /c \"\"C:\\Program Files\\Microsoft Visual Studio\\2022a\\Community\\VC\\Auxiliary\\Build\\vcvars64.bat\" && set WindowsSDKVersion=10.0.22621.0 && cl /std:c++17 /EHsc /Zi /Fe:solitaire.exe Solitaire.cpp initialize.cpp database.cpp sqlite3.c /link /DEBUG\"",
+			"options": {
+                "cwd": "${workspaceFolder}"
             },
             "group": {
                 "kind": "build",
