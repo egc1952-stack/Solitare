@@ -3,6 +3,7 @@
 #include <vector>
 #include "sqlite3.h"
 #include "functions.h"
+#include <windows.h>
 #include <synchapi.h>
 
 
