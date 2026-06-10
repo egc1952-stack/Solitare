@@ -2,14 +2,14 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Debug solitaire.exe",
+      "name": "Debug Solitaire",
       "type": "cppvsdbg",
       "request": "launch",
       "program": "${workspaceFolder}/solitaire.exe",
       "cwd": "${workspaceFolder}",
       "console": "integratedTerminal",
       "stopAtEntry": false,
-      "preLaunchTask": "Build solitaire.exe (MSVC)"
+      "preLaunchTask": "Build Solitaire (MSVC)"
 	  
     }
   ]

@@ -3,5 +3,6 @@
 #define FUNCTIONS_H
 
 int initialize();
+int makeNewDeal();
 
 #endif

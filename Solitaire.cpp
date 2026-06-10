@@ -1,9 +1,9 @@
+#include <windows.h>
 #include "Solitaire.h"
 #include <iostream>
 #include <vector>
 #include "sqlite3.h"
 #include "functions.h"
-#include <windows.h>
 #include <synchapi.h>
 
 

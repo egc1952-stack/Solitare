@@ -1,8 +1,11 @@
+#include <windows.h>
 #include "Solitaire.h"
 #include <iostream>
 //#include <vector>
 #include "sqlite3.h"
 #include "database.h"
+#include "functions.h"
+
 
 
 int initialize() {
@@ -24,12 +27,12 @@ int initialize() {
 	if (rc == SQLITE_ROW) {
 		int count = sqlite3_column_int(stmt, 0);
 		std::cout << "Active deals: " << count << "\n";
-	}
-	else if (rc == SQLITE_DONE) {
-		std::cout << "New Deal Needed.\n";
+		int result = makeNewDeal();
+
 	}
 	else {
 		std::cout << "SQLite error: " << rc << "\n";
+		return 1;
 }	// create new deal
 	
 
