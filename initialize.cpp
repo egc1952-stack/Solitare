@@ -19,7 +19,7 @@ int initialize() {
 
 	// the check for active deals is here. if no active deals, then a new deal is needed
 	// if deals exist, then start worker threads.
-	const char*sql="select count(*) from Deal_Head where EndTime=0";
+	const char* sql="select count(*) from Deal_Head where EndTime=0";
 	std::cout << sql << "\n";
 	sqlite3_stmt* stmt = db_query(sql);
 	int rc = sqlite3_step(stmt);
@@ -27,12 +27,14 @@ int initialize() {
 	if (rc == SQLITE_ROW) {
 		int count = sqlite3_column_int(stmt, 0);
 		std::cout << "Active deals: " << count << "\n";
-		int result = makeNewDeal();
-
-	}
+		if (count == 0) { 
+			int result = makeNewDeal();
+			return 0;
+		}
 	else {
 		std::cout << "SQLite error: " << rc << "\n";
 		return 1;
+	}	
 }	// create new deal
 	
 
