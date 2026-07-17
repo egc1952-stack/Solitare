@@ -3,7 +3,7 @@
 #include "sqlite3.h"
 #include "Solitaire.h"
 
-static sqlite3* g_db = nullptr;
+sqlite3* g_db = nullptr;
 
 sqlite3* db_handle() {
     return g_db;
@@ -28,6 +28,7 @@ void db_close() {
 }
 
 bool db_exec(const char* sql) {
+	std::cout << sql << "\n";
     char* err = nullptr;
     int rc = sqlite3_exec(g_db, sql, nullptr, nullptr, &err);
 
@@ -40,6 +41,7 @@ bool db_exec(const char* sql) {
 }
 
 sqlite3_stmt* db_query(const char* sql) {
+	std::cout << sql << "\n";
     sqlite3_stmt* stmt = nullptr;
 
     int rc = sqlite3_prepare_v2(
@@ -54,6 +56,41 @@ sqlite3_stmt* db_query(const char* sql) {
     return stmt;
 }
 
+void db_disp_query(const char* sql) {
+	sqlite3_stmt* stmt = nullptr;
+
+	int rc = sqlite3_prepare_v2(
+		g_db,
+		sql,
+		-1,
+		&stmt,
+		nullptr
+	);
+
+	if (rc != SQLITE_OK) {
+		std::cerr << "Prepare: "
+				<< sqlite3_errmsg(g_db)
+				<< "\n";
+		return;
+	}
+
+	int cols = sqlite3_column_count(stmt);
+	std::cout << "cols = " << cols << "\n";
+
+	while (sqlite3_step(stmt) == SQLITE_ROW) {
+		for (int i = 0; i < cols; i++) {
+			const unsigned char* txt =
+				sqlite3_column_text(stmt, i);
+
+			std::cout << txt << " ";
+		}
+		std::cout << "\n";
+	}
+
+
+	sqlite3_finalize(stmt);
+}
+
 void db_finalize(sqlite3_stmt* stmt) {
-    if (stmt) sqlite3_finalize(stmt);
+	if (stmt) sqlite3_finalize(stmt);
 }

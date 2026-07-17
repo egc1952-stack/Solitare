@@ -21,4 +21,10 @@ void db_finalize(sqlite3_stmt* stmt);
 // Returns the global db handle
 sqlite3* db_handle();
 
+// outputs the results of a select sql but returns nothing
+void db_disp_query(const char* sql); 
+
+extern sqlite3* g_db;
+
+
 #endif

@@ -9,6 +9,10 @@
 #include <future>
 #include <atomic>
 
+int initialize();
+int makeNewDeal();
+
+
 class ThreadPool {
 public:
     explicit ThreadPool(std::size_t threads = std::thread::hardware_concurrency())
