@@ -111,7 +111,7 @@ int makeNewDeal()
 
 	// deck_0.populate from card_0
 	// copy deck_0 to Deck_data
-	// return new neck_id
+	// return new deck_id
 
 
 	return 0;
