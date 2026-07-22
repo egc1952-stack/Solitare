@@ -2,6 +2,8 @@
 #define DATABASE_H
 
 #include "sqlite3.h"
+#include <string>
+
 
 // Opens the database file (creates handle)
 bool db_open(const char* filename);
@@ -25,6 +27,12 @@ sqlite3* db_handle();
 void db_disp_query(const char* sql); 
 
 extern sqlite3* g_db;
+
+//execute query and returns single row
+int exec_query_single_int(sqlite3* db, const std::string& sql);
+
+// insert record and return rowID
+sqlite3_int64 insert_and_get_rowid(sqlite3* db, const std::string& sql);
 
 
 #endif

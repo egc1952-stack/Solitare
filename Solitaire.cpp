@@ -35,9 +35,9 @@ int initialize() {
 
 	// the check for active deals is here. if no active deals, then a new deal is needed
 	// if deals exist, then start worker threads.
-	const char* sql="select count(*) from Deal_Head where EndTime=0";
-	std::cout << sql << "\n";
-	sqlite3_stmt* stmt = db_query(sql);
+	const char* cSql="select count(*) from Deal_Head where EndTime=0";
+	std::cout << cSql << "\n";
+	sqlite3_stmt* stmt = db_query(cSql);
 	int rc = sqlite3_step(stmt);
 
 	if (rc == SQLITE_ROW) {
@@ -48,11 +48,11 @@ int initialize() {
 			int result = makeNewDeal();
 			return 0;
 		}
-	else {
+	} else {
 		std::cout << "SQLite error: " << rc << "\n";
 		return 1;
 	}	
-}	
+
 	
 
 	
@@ -67,8 +67,8 @@ int makeNewDeal()
 	std::cout << "Generating New Deal . . .\n";
 
 	// update card_0 rnd to new rnd
-	const char* sql = "update card_0 set rnd=abs(random())";
-	bool OK = db_exec(sql);
+	const char* cSql = "update card_0 set rnd=abs(random())";
+	bool OK = db_exec(cSql);
 	if (!OK) {
 		__debugbreak();
 		return -1;
@@ -76,8 +76,8 @@ int makeNewDeal()
 	std::cout << "Sucessful shuffle.\n";
 
 	// card_0 order by rnd
-	sql = "update deck_0 set card = (select cardid from (select cardid , row_number() over (order by rnd)-1 as r from card_0) where r=deck_0.pos)";
-	OK = db_exec(sql);
+	cSql = "update deck_0 set card = (select cardid from (select cardid , row_number() over (order by rnd)-1 as r from card_0) where r=deck_0.pos)";
+	OK = db_exec(cSql);
 
 	if (!OK) {
 		__debugbreak();
@@ -87,26 +87,24 @@ int makeNewDeal()
 	// get next deal_no
 	// create new deck_head
 	// Deal_Head.DealNo is primary_key and thus auto increments.
-	sql="insert into Deal_Head DEFAULT VALUES";
-	db_exec(sql);
-	sqlite3_int64 dealnoRow = sqlite3_last_insert_rowid(g_db);
+	cSql="insert into Deal_Head (StartTime,Status) Values (datetime('now'),0)";
+	sqlite3_int64 dealnoRow = insert_and_get_rowid(g_db,cSql);
 	
-	std::stringstream ss;
-	ss << "select DealNo from Deal_Head where DealNo = " << dealnoRow;
-	sqlite3_stmt* stmt = nullptr;
-	int rc = sqlite3_prepare_v2(g_db, ss.str().c_str(), -1, &stmt, nullptr);
-	int iDealNo = -1;
-	if (rc == SQLITE_OK) {
-		rc = sqlite3_step(stmt);
-		if (rc == SQLITE_ROW){
-			iDealNo = sqlite3_column_int(stmt,0);
-		}
-	}
+	std::string sSql="select DealNo from Deal_Head where Dealno = " +std::to_string(dealnoRow);
+	int iDealNo = exec_query_single_int(g_db, sSql);
 	if (iDealNo==-1){
 		__debugbreak();
 		std::cerr << "Fatal error: could not read DealNo\n";
 		std::exit(1);          // stops program in release mode
 	}
+	// i have deal number
+
+
+
+	// create entry in deckHead
+
+
+
 
 
 	// deck_0.populate from card_0

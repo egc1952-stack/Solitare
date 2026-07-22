@@ -2,6 +2,19 @@
     "version": "2.0.0",
     "tasks": [
         {
+            "label": "Clean Solitaire (MSVC)",
+            "type": "shell",
+            "command": "cmd",
+            "args": [
+                "/c",
+                "del /q *.obj"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "group": "build"
+        },
+        {
             "label": "Build Solitaire (MSVC)",
             "type": "shell",
             "command": "call \"C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Auxiliary\\Build\\vcvarsall.bat\" x64 && cl /std:c++17 /EHsc /Zi /Fe:solitaire.exe Solitaire.cpp database.cpp sqlite3.c /link /DEBUG",

@@ -27,7 +27,7 @@ void db_close() {
     }
 }
 
-bool db_exec(const char* sql) {
+bool db_exec(const char* sql) {	// returns true / false
 	std::cout << sql << "\n";
     char* err = nullptr;
     int rc = sqlite3_exec(g_db, sql, nullptr, nullptr, &err);
@@ -93,4 +93,38 @@ void db_disp_query(const char* sql) {
 
 void db_finalize(sqlite3_stmt* stmt) {
 	if (stmt) sqlite3_finalize(stmt);
+}
+
+int exec_query_single_int(sqlite3* db, const std::string& sql)
+{
+    sqlite3_stmt* stmt = nullptr;
+
+    int rc = sqlite3_prepare_v2(db, sql.c_str(), -1, &stmt, nullptr);
+    if (rc != SQLITE_OK) {
+        sqlite3_finalize(stmt);
+        return -1;
+    }
+
+    rc = sqlite3_step(stmt);
+    int value = -1;
+
+    if (rc == SQLITE_ROW) {
+        value = sqlite3_column_int(stmt, 0);
+    }
+
+    sqlite3_finalize(stmt);
+    return value;
+}
+
+sqlite3_int64 insert_and_get_rowid(sqlite3* db, const std::string& sql) // returns rownumber
+{
+    char* err = nullptr;
+    int rc = sqlite3_exec(db, sql.c_str(), nullptr, nullptr, &err);
+
+    if (rc != SQLITE_OK) {
+        if (err) sqlite3_free(err);
+        return -1;
+    }
+
+    return sqlite3_last_insert_rowid(db);
 }
