@@ -16,7 +16,6 @@
 int main() {
 	Sleep(2000);
     int result = initialize();
-    // load game state from database
     // launch helper
     // process parent
     // save game state to database
@@ -88,26 +87,44 @@ int makeNewDeal()
 	// create new deck_head
 	// Deal_Head.DealNo is primary_key and thus auto increments.
 	cSql="insert into Deal_Head (StartTime,Status) Values (datetime('now'),0)";
-	sqlite3_int64 dealnoRow = insert_and_get_rowid(g_db,cSql);
+	sqlite3_int64 recordNum = insert_and_get_rowid(g_db,cSql);
 	
-	std::string sSql="select DealNo from Deal_Head where Dealno = " +std::to_string(dealnoRow);
+	std::string sSql="select DealNo from Deal_Head where Dealno = " +std::to_string(recordNum);
 	int iDealNo = exec_query_single_int(g_db, sSql);
 	if (iDealNo==-1){
 		__debugbreak();
 		std::cerr << "Fatal error: could not read DealNo\n";
 		std::exit(1);          // stops program in release mode
 	}
+	std::string sDealNo = std::to_string(iDealNo);
+
 	// i have deal number
-
-
-
 	// create entry in deckHead
-
-
-
-
+	sSql="insert into Decks_Head (DealID, Start, Status) Values ('" + sDealNo + "', datetime('now'), 0)";
+	recordNum = insert_and_get_rowid(g_db,sSql);
+	sSql="select DeckID from Decks_Head where DeckID = " +std::to_string(recordNum);
+	int iDeckNo = exec_query_single_int(g_db, sSql);
+	if (iDeckNo==-1){
+		__debugbreak();
+		std::cerr << "Fatal error: could not read DeckNo\n";
+		std::exit(1);          // stops program in release mode
+	}
+	std::string sDeckNo = std::to_string(iDeckNo);
 
 	// deck_0.populate from card_0
+	sSql="INSERT INTO Decks_data (deckID, card, place, seq, updown, pos) "
+		"SELECT " + sDeckNo + ", card, place, seq, updown, pos "
+		"FROM deck_0";
+	recordNum = insert_and_get_rowid(g_db,sSql);
+
+	
+	
+
+
+
+
+
+
 	// copy deck_0 to Deck_data
 	// return new deck_id
 
