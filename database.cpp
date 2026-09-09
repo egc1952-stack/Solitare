@@ -10,11 +10,15 @@ sqlite3* db_handle() {
 }
 
 bool db_open(const char* filename) {
-    if (sqlite3_open(filename, &g_db) != SQLITE_OK) {
+    sqlite3* db = nullptr;
+    if (sqlite3_open(filename, &db) != SQLITE_OK) {
         std::cerr << "DB open error: "
-                  << sqlite3_errmsg(g_db) << "\n";
+                  << sqlite3_errmsg(db) << "\n";
+        sqlite3_close(db);
+        g_db = nullptr;
         return false;
     }
+    g_db = db;
     std::cout << "DB opened.\n";
     return true;
 }

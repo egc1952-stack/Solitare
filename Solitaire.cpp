@@ -1,4 +1,5 @@
 #include <windows.h>
+#include <cstdlib>
 #include <intrin.h>
 #include <iostream>
 #include <sstream>
@@ -15,21 +16,52 @@
 
 int main() {
 	Sleep(2000);
-    int result = initialize();
+	if (initialize() != 0) {
+		return 1;
+	}
+
     // launch helper
-    // process parent
+	// eventually this will be modified to specifically select the thread and move it to part of process parent
+	// this is each task will be run an two different tjreads and the results compared.
+	ThreadPool pool;
+	std::vector<std::future<void>> futures;
+//	for (int i=0; i<20; ++i)
+//		futures.push_back(
+//			pool.enqueue([i]  {
+//			std::cout << "Hello from worker thread " + std::to_string(i) + "\n";
+//			}));
+	
+//	f.get();
+
+
+
+
+	// process parent
     // save game state to database
     // cleanup
     // exit
+
+	futures.push_back(
+		pool.enqueue([]  {
+		constexpr int worker=5;
+		std::cout << "Hello from worker thread " + std::to_string(worker) + "\n";
+		}));
+
+
+	std::cout << "Press Enter to exit...\n";
+	std::cin.get();
+	return 0;
 }
 
 int initialize() {
-	sqlite3* db = nullptr;
 	// Initialize game state, load resources, etc.
 	std::cout << "Initializing Solitaire..." << std::endl;
 
 	// open SQLite database
-	db_open("Solitaire.db");
+	if (!db_open("Solitaire.db")) {
+		std::cerr << "Could not open database.\n";
+		return 1;
+	}
 	std::cout << "SQLite opened successfully.\n";
 
 	// the check for active deals is here. if no active deals, then a new deal is needed
@@ -37,6 +69,13 @@ int initialize() {
 	const char* cSql="select count(*) from Deal_Head where EndTime=0";
 	std::cout << cSql << "\n";
 	sqlite3_stmt* stmt = db_query(cSql);
+	if (!stmt) {
+		std::cerr << "Could not prepare startup query: "
+				  << sqlite3_errmsg(g_db) << "\n";
+		db_close();
+		return 1;
+	}
+
 	int rc = sqlite3_step(stmt);
 
 	if (rc == SQLITE_ROW) {
@@ -44,24 +83,35 @@ int initialize() {
 		std::cout << "Active deals: " << count << "\n";
 		if (count == 0) {
 			// create new deal
-			int result = makeNewDeal();
-			return 0;
+			if (makeNewDeal() != 0) {
+				db_finalize(stmt);
+				db_close();
+				return 1;
+			}
 		}
 	} else {
-		std::cout << "SQLite error: " << rc << "\n";
+		std::cerr << "SQLite error: " << sqlite3_errmsg(g_db) << "\n";
+		db_finalize(stmt);
+		db_close();
 		return 1;
-	}	
+	}
 
-	
-
-	
-
-return 0;
+	db_finalize(stmt);
+	return 0;
 }
 
 int makeNewDeal()
 
 {
+	if (!db_exec("BEGIN IMMEDIATE")) {
+		return -1;
+	}
+
+	auto fail = [] {
+		db_exec("ROLLBACK");
+		return -1;
+	};
+
 	// deck_0.initialize
 	std::cout << "Generating New Deal . . .\n";
 
@@ -69,8 +119,7 @@ int makeNewDeal()
 	const char* cSql = "update card_0 set rnd=abs(random())";
 	bool OK = db_exec(cSql);
 	if (!OK) {
-		__debugbreak();
-		return -1;
+		return fail();
 	}
 	std::cout << "Sucessful shuffle.\n";
 
@@ -79,8 +128,7 @@ int makeNewDeal()
 	OK = db_exec(cSql);
 
 	if (!OK) {
-		__debugbreak();
-		return -1;
+		return fail();
 	}
 
 	// get next deal_no
@@ -88,45 +136,34 @@ int makeNewDeal()
 	// Deal_Head.DealNo is primary_key and thus auto increments.
 	cSql="insert into Deal_Head (StartTime,Status) Values (datetime('now'),0)";
 	sqlite3_int64 recordNum = insert_and_get_rowid(g_db,cSql);
-	
-	std::string sSql="select DealNo from Deal_Head where Dealno = " +std::to_string(recordNum);
-	int iDealNo = exec_query_single_int(g_db, sSql);
-	if (iDealNo==-1){
-		__debugbreak();
-		std::cerr << "Fatal error: could not read DealNo\n";
-		std::exit(1);          // stops program in release mode
+	if (recordNum < 0) {
+		return fail();
 	}
-	std::string sDealNo = std::to_string(iDealNo);
 
 	// i have deal number
 	// create entry in deckHead
-	sSql="insert into Decks_Head (DealID, Start, Status) Values ('" + sDealNo + "', datetime('now'), 0)";
+	std::string sSql="insert into Decks_Head (DealID, Start, Status) Values (" +
+		std::to_string(recordNum) + ", datetime('now'), 0)";
 	recordNum = insert_and_get_rowid(g_db,sSql);
-	sSql="select DeckID from Decks_Head where DeckID = " +std::to_string(recordNum);
-	int iDeckNo = exec_query_single_int(g_db, sSql);
-	if (iDeckNo==-1){
-		__debugbreak();
-		std::cerr << "Fatal error: could not read DeckNo\n";
-		std::exit(1);          // stops program in release mode
+	if (recordNum < 0) {
+		return fail();
 	}
-	std::string sDeckNo = std::to_string(iDeckNo);
 
 	// deck_0.populate from card_0
 	sSql="INSERT INTO Decks_data (deckID, card, place, seq, updown, pos) "
-		"SELECT " + sDeckNo + ", card, place, seq, updown, pos "
+		"SELECT " + std::to_string(recordNum) + ", card, place, seq, updown, pos "
 		"FROM deck_0";
 	recordNum = insert_and_get_rowid(g_db,sSql);
-
-	
-	
-
-
-
-
-
+	if (recordNum < 0) {
+		return fail();
+	}
 
 	// copy deck_0 to Deck_data
 	// return new deck_id
+	if (!db_exec("COMMIT")) {
+		db_exec("ROLLBACK");
+		return -1;
+	}
 
 
 	return 0;
