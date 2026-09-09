@@ -50,6 +50,18 @@ int main() {
 
 	std::cout << "Press Enter to exit...\n";
 	std::cin.get();
+
+	try {
+		for (auto& future : futures) {
+			future.get();
+		}
+	} catch (const std::exception& error) {
+		std::cerr << "Worker failed: " << error.what() << "\n";
+		db_close();
+		return 1;
+	}
+
+	db_close();
 	return 0;
 }
 
@@ -97,74 +109,5 @@ int initialize() {
 	}
 
 	db_finalize(stmt);
-	return 0;
-}
-
-int makeNewDeal()
-
-{
-	if (!db_exec("BEGIN IMMEDIATE")) {
-		return -1;
-	}
-
-	auto fail = [] {
-		db_exec("ROLLBACK");
-		return -1;
-	};
-
-	// deck_0.initialize
-	std::cout << "Generating New Deal . . .\n";
-
-	// update card_0 rnd to new rnd
-	const char* cSql = "update card_0 set rnd=abs(random())";
-	bool OK = db_exec(cSql);
-	if (!OK) {
-		return fail();
-	}
-	std::cout << "Sucessful shuffle.\n";
-
-	// card_0 order by rnd
-	cSql = "update deck_0 set card = (select cardid from (select cardid , row_number() over (order by rnd)-1 as r from card_0) where r=deck_0.pos)";
-	OK = db_exec(cSql);
-
-	if (!OK) {
-		return fail();
-	}
-
-	// get next deal_no
-	// create new deck_head
-	// Deal_Head.DealNo is primary_key and thus auto increments.
-	cSql="insert into Deal_Head (StartTime,Status) Values (datetime('now'),0)";
-	sqlite3_int64 recordNum = insert_and_get_rowid(g_db,cSql);
-	if (recordNum < 0) {
-		return fail();
-	}
-
-	// i have deal number
-	// create entry in deckHead
-	std::string sSql="insert into Decks_Head (DealID, Start, Status) Values (" +
-		std::to_string(recordNum) + ", datetime('now'), 0)";
-	recordNum = insert_and_get_rowid(g_db,sSql);
-	if (recordNum < 0) {
-		return fail();
-	}
-
-	// deck_0.populate from card_0
-	sSql="INSERT INTO Decks_data (deckID, card, place, seq, updown, pos) "
-		"SELECT " + std::to_string(recordNum) + ", card, place, seq, updown, pos "
-		"FROM deck_0";
-	recordNum = insert_and_get_rowid(g_db,sSql);
-	if (recordNum < 0) {
-		return fail();
-	}
-
-	// copy deck_0 to Deck_data
-	// return new deck_id
-	if (!db_exec("COMMIT")) {
-		db_exec("ROLLBACK");
-		return -1;
-	}
-
-
 	return 0;
 }
